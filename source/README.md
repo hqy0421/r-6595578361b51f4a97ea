@@ -125,6 +125,35 @@ print(pipeline)
 #                 ('MeanImputer', MeanImputer(columns=['b']))])
 ```
 
+When an intermediate step of a fitted pipeline is updated, the meaning of the
+columns seen by downstream steps can change. `dump_versioned_pipeline_to_json`
+adds per-step column lineage (resolving both direct `columns` and indirect
+references such as `weights_column`) and traceable content versions. Use
+`analyze_pipeline_impact` to see which downstream fitted steps must be refit on
+the historical training table, then `refit_pipeline` to refit only those steps:
+unaffected fitted stages are restored unchanged from the original json while
+each refit step keeps a `version_history` entry.
+
+```python
+from tubular.pipeline import (
+    analyze_pipeline_impact,
+    dump_versioned_pipeline_to_json,
+    refit_pipeline,
+)
+
+versioned_json = dump_versioned_pipeline_to_json(original_pipeline)
+
+impact = analyze_pipeline_impact(versioned_json, changed_steps=["median_imputer"])
+# impact["refit_steps"]  -> downstream fitted steps that must be refit
+# impact["reuse_steps"]  -> steps restored unchanged from the original json
+
+refitted_pipeline, new_json = refit_pipeline(
+    versioned_json,
+    changed_steps={"median_imputer": updated_median_imputer},
+    X=df,
+)
+```
+
 We are currently in the process of rolling out support for polars lazyframes!
 
 track our progress below:

@@ -34,6 +34,7 @@ Changed
 - chore: switched codespaces and github actions to use pyproject.toml for env, removed req.text file
 - feat: added min/max version testing in github actions
 - chore: removed cap on polars version
+- feat: added column lineage and versioned pipeline json (``tubular.lineage`` and ``dump_versioned_pipeline_to_json``/``refit_pipeline`` in ``tubular.pipeline``) so downstream fitted steps affected by an updated intermediate step can be identified via real-field references (including indirect ones such as ``weights_column``), selectively refit on the historical training table, and traced through per-step version history while unaffected fitted steps are restored unchanged from the original json
 
 5.0.0 (19/11/2026)
 -------------------
